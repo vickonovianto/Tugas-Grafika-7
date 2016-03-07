@@ -1,191 +1,181 @@
 #include <vector>
+#include <map>
+#include <iostream>
 #include "framebuffer.h"
 #include "input.h"
 #include "color32.h"
 #include "point2.h"
+#include "file.h"
+#include <unistd.h>
 
 using namespace std;
 
+Framebuffer framebuffer;
 
-int main(){
-	Framebuffer framebuffer;
-
-	set_conio_terminal_mode();
-
-	framebuffer.ClearScreen();
-	
-	vector<Point2> points; 
-	//points.push_back(Point2(240.0,300.0));
-	points.push_back(Point2(450,400));
-	points.push_back(Point2(480,600));
-	points.push_back(Point2(560,800));
-	points.push_back(Point2(660,600));
-	points.push_back(Point2(690,400));
-
+void moveUp(vector<Point2> *points_edit, Point2 *point_idx, int n){
 	double t;
-
-	for (double i = 0.0; i < 1.0; i+=0.0005) {
+	for (double i = 0.0; i < 1.0; i+=0.01) {
 		t = i;
-		framebuffer.drawCurve(points, t, WHITE);
+		framebuffer.drawCurve(*points_edit, t, BLACK);
 	}
 
 	framebuffer.SwapBuffers();
 
-	points.clear();
-	points.push_back(Point2(450,400));
-	points.push_back(Point2(530,325));
-	points.push_back(Point2(610,325));
-	points.push_back(Point2(690,400));
-
-	for (double i = 0.0; i < 1.0; i+=0.0005) {
-		t = i;
-		framebuffer.drawCurve(points, t, WHITE);
-	}
-
-	framebuffer.SwapBuffers();
-
-	points.clear();
-	points.push_back(Point2(470,450));
-	points.push_back(Point2(495,425));
-	points.push_back(Point2(520,450));
+	point_idx->y -= n;
 
 	for (double i = 0.0; i < 1.0; i+=0.01) {
 		t = i;
-		framebuffer.drawCurve(points, t, WHITE);
+		framebuffer.drawCurve(*points_edit, t, WHITE);
+	}
+
+	framebuffer.SwapBuffers();
+}
+
+void moveUp(vector<Point2> *points_edit, Point2 *point_idx){
+	moveUp(points_edit, point_idx, 5);
+}
+
+void moveDown(vector<Point2> *points_edit, Point2 *point_idx, int n){
+	double t;
+	for (double i = 0.0; i < 1.0; i+=0.01) {
+		t = i;
+		framebuffer.drawCurve(*points_edit, t, BLACK);
 	}
 
 	framebuffer.SwapBuffers();
 
-	while (1) {
-		char c = getch();
-		if(c == 's'){ 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, BLACK);
-			}
+	point_idx->y += n;
 
-			framebuffer.SwapBuffers();
+	for (double i = 0.0; i < 1.0; i+=0.01) {
+		t = i;
+		framebuffer.drawCurve(*points_edit, t, WHITE);
+	}
 
-			for (int i = 0; i < points.size(); i++) {
-				points[i].y += 5;
-			}
+	framebuffer.SwapBuffers();
+}
 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, WHITE);
-			}
+void moveDown(vector<Point2> *points_edit, Point2 *point_idx){
+	moveDown(points_edit, point_idx, 5);
+}
 
-			framebuffer.SwapBuffers();
-		} 
-		else if(c == 'w'){ 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, BLACK);
-			}
+void moveRight(vector<Point2> *points_edit, Point2 *point_idx, int n){
+	double t;
+	for (double i = 0.0; i < 1.0; i+=0.01) {
+		t = i;
+		framebuffer.drawCurve(*points_edit, t, BLACK);
+	}
 
-			framebuffer.SwapBuffers();
+	framebuffer.SwapBuffers();
 
-			for (int i = 0; i < points.size(); i++) {
-				points[i].y -= 5;
-			}
+	for (int i = 0; i < points_edit->size(); i++) {
+		points_edit->at(i).x += n;
+	}
 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, WHITE);
-			}
+	for (double i = 0.0; i < 1.0; i+=0.01) {
+		t = i;
+		framebuffer.drawCurve(*points_edit, t, WHITE);
+	}
 
-			framebuffer.SwapBuffers();
-		}
-		else if(c == 'a'){ 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, BLACK);
-			}
+	framebuffer.SwapBuffers();
+}
 
-			framebuffer.SwapBuffers();
+void moveRight(vector<Point2> *points_edit, Point2 *point_idx){
+	moveRight(points_edit, point_idx, 5);
+}
 
-			for (int i = 0; i < points.size(); i++) {
-				points[i].x -= 5;
-			}
+void moveLeft(vector<Point2> *points_edit, Point2 *point_idx, int n){
+	double t;
+	for (double i = 0.0; i < 1.0; i+=0.01) {
+		t = i;
+		framebuffer.drawCurve(*points_edit, t, BLACK);
+	}
 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, WHITE);
-			}
+	framebuffer.SwapBuffers();
 
-			framebuffer.SwapBuffers();
-		}
-		else if(c == 'd'){ 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, BLACK);
-			}
+	for (int i = 0; i < points_edit->size(); i++) {
+		points_edit->at(i).x -= n;
+	}
 
-			framebuffer.SwapBuffers();
+	for (double i = 0.0; i < 1.0; i+=0.01) {
+		t = i;
+		framebuffer.drawCurve(*points_edit, t, WHITE);
+	}
 
-			for (int i = 0; i < points.size(); i++) {
-				points[i].x += 5;
-			}
+	framebuffer.SwapBuffers();
+}
 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, WHITE);
-			}
+void moveLeft(vector<Point2> *points_edit, Point2 *point_idx){
+	moveLeft(points_edit, point_idx, 5);
+}
 
-			framebuffer.SwapBuffers();
-		}
-		else if(c == 'g'){ 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, BLACK);
-			}
-
-			framebuffer.SwapBuffers();
-
-			points[1].y += 5;
-
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, WHITE);
-			}
-
-			framebuffer.SwapBuffers();
-		}
-		else if(c == 't'){ 
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, BLACK);
-			}
-
-			framebuffer.SwapBuffers();
-
-			points[1].y -= 5;
-
-			for (double i = 0.0; i < 1.0; i+=0.01) {
-				t = i;
-				framebuffer.drawCurve(points, t, WHITE);
-			}
-
-			framebuffer.SwapBuffers();
-		}
-		else if(c == 'x'){
-			break;
+int main(){
+	framebuffer.ClearScreen();
+	
+	vector<string> filenames;
+    filenames.push_back("points.txt");
+	
+	double t;
+	
+	map<string, vector<Point2> > points = getPointsFromFile(filenames);
+	
+	for(map<string, vector<Point2>>::iterator it=points.begin(); it!=points.end(); it++){
+		//cout<<"it:"<<it->first<<endl;
+		for (double i = 0.0; i < 1.0; i+=0.0005) {
+			t = i;
+			framebuffer.drawCurve(it->second, t, WHITE);
 		}
 	}
 
-	// for (int i = 0; i< points.size()-1; i++) {
-	// 	framebuffer.DrawLine(Point2((int)points[i].x, (int)points[i].y), Point2((int)points[i+1].x, (int)points[i+1].y), (Color32){0, 255, 0, 255});
-	// 	//framebuffer.SetPixel((int)points[i].x, (int)points[i].y, (Color32){0, 255, 0, 255});
-	// 	framebuffer.SwapBuffers();
-	// }
-	// t = 0.0 / 999.0;
+	framebuffer.SwapBuffers();
+	set_conio_terminal_mode();
+	vector<Point2> *points_edit;
 
-	// drawCurve(framebuffer, points, t);
-	// printf("d\n");
-	// framebuffer.SwapBuffers();
-	// printf("e\n");
+	int n_rightBrow = 0, sign_rightBrow = true;
+	int n_rightTears = 0;
+	while (1) {
+		// Move right brow
+		points_edit = &points["rightBrow"];
 
-	//delete &framebuffer;
-	
+		if (n_rightBrow > 5){
+			sign_rightBrow = !sign_rightBrow;
+			n_rightBrow = 0;
+		}
+
+		if (sign_rightBrow){
+			moveUp(points_edit, &(points_edit->at(1)), 1);
+			n_rightBrow++;
+		} else {
+			moveDown(points_edit, &(points_edit->at(1)), 1);
+			n_rightBrow++;
+		}
+
+		// Move right tears
+		points_edit = &points["rightTears"];
+
+		if (n_rightTears > 35){
+			n_rightTears = 0;
+
+			moveUp(points_edit, &(points_edit->at(0)), 35 * 5);
+			moveUp(points_edit, &(points_edit->at(1)), 35 * 5);
+			moveUp(points_edit, &(points_edit->at(2)), 35 * 5);
+		}
+
+		moveDown(points_edit, &(points_edit->at(0)), 5);
+		moveDown(points_edit, &(points_edit->at(1)), 5);
+		moveDown(points_edit, &(points_edit->at(2)), 5);
+
+		n_rightTears++;
+
+		if(kbhit()){
+			char c = getch();
+
+			if (c == 'x'){
+				break;
+			}
+		}
+
+		usleep(20000);
+	}
+
 	return 0;
 }
